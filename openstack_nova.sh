@@ -21,7 +21,7 @@ read -p "Enter the floating network (eg. 10.0.1.224/27): " floating_range
 read -p "Enter the floating netowrk size (eg. 32): " floating_size
 
 # get nova
-apt-get install nova-api nova-cert nova-common nova-compute nova-compute-kvm nova-doc nova-network nova-objectstore nova-scheduler nova-vncproxy nova-volume python-nova python-novaclient
+apt-get install nova-api nova-cert nova-common nova-compute nova-compute-kvm nova-doc nova-network nova-objectstore nova-scheduler nova-novncproxy nova-volume python-nova python-novaclient nova-consoleauth novnc
 
 . ./stackrc
 password=$SERVICE_PASSWORD
@@ -32,7 +32,7 @@ s,%SERVICE_TENANT_NAME%,admin,g;
 s,%SERVICE_USER%,admin,g;
 s,%SERVICE_PASSWORD%,$password,g;
 " -i /etc/nova/api-paste.ini
- 
+
 # write out a new nova file
 echo "
 --dhcpbridge_flagfile=/etc/nova/nova.conf
