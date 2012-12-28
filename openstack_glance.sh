@@ -12,39 +12,40 @@ apt-get install glance glance-api glance-common glance-registry python-glance py
 . ./stackrc
 password=$SERVICE_PASSWORD
 
-# edit glance api conf files 
-if [ -f /etc/glance/glance-api-paste.ini.orig ]
+# edit glance api conf files
+if [ -f /etc/glance/glance-api.conf.orig ]
 then
    echo "#################################################################################################"
-   echo "Not changing config files.  If you want to edit, they are in /etc/glance/" 
+   echo "Not changing config files.  If you want to edit, they are in /etc/glance/"
    echo "#################################################################################################"
-else 
+else
    # copy before editing
-   cp /etc/glance/glance-api-paste.ini /etc/glance/glance-api-paste.ini.orig
-   cp /etc/glance/glance-registry-paste.ini /etc/glance/glance-registry-paste.ini.orig
+   cp /etc/glance/glance-api.conf /etc/glance/glance-api.conf.orig
    cp /etc/glance/glance-registry.conf /etc/glance/glance-registry.conf.orig
    sed -e "
    /^sql_connection =.*$/s/^.*$/sql_connection = mysql:\/\/glance:$password@127.0.0.1\/glance/
    " -i /etc/glance/glance-registry.conf
-   
+
    sed -e "
+   /^sql_connection =.*$/s/^.*$/sql_connection = mysql:\/\/glance:$password@127.0.0.1\/glance/;
    s,%SERVICE_TENANT_NAME%,admin,g;
    s,%SERVICE_USER%,admin,g;
    s,%SERVICE_PASSWORD%,$password,g;
-   " -i /etc/glance/glance-registry-paste.ini
-   
+   " -i /etc/glance/glance-registry.conf
+
    sed -e "
+   /^sql_connection =.*$/s/^.*$/sql_connection = mysql:\/\/glance:$password@127.0.0.1\/glance/;
    s,%SERVICE_TENANT_NAME%,admin,g;
    s,%SERVICE_USER%,admin,g;
    s,%SERVICE_PASSWORD%,$password,g;
-   " -i /etc/glance/glance-api-paste.ini
-   
+   " -i /etc/glance/glance-api.conf
+
 # do not unindent!
 echo "
 [paste_deploy]
 flavor = keystone
 " >> /etc/glance/glance-api.conf
-   
+
 # do not unindent!
 echo "
 [paste_deploy]
@@ -52,7 +53,7 @@ flavor = keystone
 " >> /etc/glance/glance-registry.conf
 
    echo "#################################################################################################"
-   echo "Backups of configs for glance are in /etc/glance/" 
+   echo "Backups of configs for glance are in /etc/glance/"
    echo "#################################################################################################"
 fi
 
@@ -78,5 +79,5 @@ sleep 4
 glance index
 
 echo "#################################################################################################"
-echo "You can now run './openstack_nova.sh' to set up Nova." 
+echo "You can now run './openstack_nova.sh' to set up Nova."
 echo "#################################################################################################"
