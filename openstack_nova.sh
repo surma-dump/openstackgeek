@@ -35,50 +35,64 @@ s,%SERVICE_PASSWORD%,$password,g;
 
 # write out a new nova file
 echo "
---dhcpbridge_flagfile=/etc/nova/nova.conf
---dhcpbridge=/usr/bin/nova-dhcpbridge
---logdir=/var/log/nova
---state_path=/var/lib/nova
---lock_path=/var/lock/nova
---allow_admin_api=true
---use_deprecated_auth=false
---auth_strategy=keystone
---scheduler_driver=nova.scheduler.simple.SimpleScheduler
---s3_host=$host_ip_entry
---ec2_host=$host_ip_entry
---rabbit_host=$host_ip_entry
---cc_host=$host_ip_entry
---nova_url=http://$host_ip_entry:8774/v1.1/
---routing_source_ip=$host_ip_entry
---glance_api_servers=$host_ip_entry:9292
---image_service=nova.image.glance.GlanceImageService
---iscsi_ip_prefix=192.168.22
---sql_connection=mysql://nova:$password@127.0.0.1/nova
---ec2_url=http://$host_ip_entry:8773/services/Cloud
---keystone_ec2_url=http://$host_ip_entry:5000/v2.0/ec2tokens
---api_paste_config=/etc/nova/api-paste.ini
---libvirt_type=kvm
---libvirt_use_virtio_for_bridges=true
---start_guests_on_host_boot=true
---resume_guests_state_on_host_boot=true
---vnc_enabled=true
---vncproxy_url=http://$host_ip_entry:6080
---vnc_console_proxy_url=http://$host_ip_entry:6080
-# network specific settings
---network_manager=nova.network.manager.FlatDHCPManager
---public_interface=eth0
---flat_interface=eth1
---flat_network_bridge=br100
---fixed_range=$fixed_range
---floating_range=$floating_range
---network_size=$floating_size
---flat_network_dhcp_start=$fixed_start
---flat_injected=False
---force_dhcp_release
---iscsi_helper=tgtadm
---connection_type=libvirt
---root_helper=sudo nova-rootwrap
---verbose
+[DEFAULT]
+
+# MySQL Connection #
+sql_connection=mysql://nova:$password@127.0.0.1/nova
+
+# nova-scheduler #
+rabbit_password=password
+scheduler_driver=nova.scheduler.simple.SimpleScheduler
+
+# nova-api #
+cc_host=$host_ip_entry
+auth_strategy=keystone
+s3_host=$host_ip_entry
+ec2_host=$host_ip_entry
+nova_url=http://$host_ip_entry:8774/v1.1/
+ec2_url=http://$host_ip_entry:8773/services/Cloud
+keystone_ec2_url=http://$host_ip_entry:5000/v2.0/ec2tokens
+api_paste_config=/etc/nova/api-paste.ini
+allow_admin_api=true
+use_deprecated_auth=false
+ec2_private_dns_show_ip=True
+dmz_cidr=169.254.169.254/32
+ec2_dmz_host=$host_ip_entry
+metadata_host=$host_ip_entry
+metadata_listen=0.0.0.0
+enabled_apis=ec2,osapi_compute,metadata
+
+# Networking #
+network_api_class=nova.network.quantumv2.api.API
+quantum_url=http://$host_ip_entry:9696
+quantum_auth_strategy=keystone
+quantum_admin_tenant_name=service
+quantum_admin_username=quantum
+quantum_admin_password=$password
+quantum_admin_auth_url=http://$host_ip_entry:35357/v2.0
+libvirt_vif_driver=nova.virt.libvirt.vif.LibvirtHybridOVSBridgeDriver
+linuxnet_interface_driver=nova.network.linux_net.LinuxOVSInterfaceDriver
+firewall_driver=nova.virt.libvirt.firewall.IptablesFirewallDriver
+
+# Cinder #
+volume_api_class=nova.volume.cinder.API
+
+# Glance #
+glance_api_servers=$host_ip_entry:9292
+image_service=nova.image.glance.GlanceImageService
+
+# novnc #
+novnc_enable=true
+novncproxy_base_url=http://$host_ip_entry:6080/vnc_auto.html
+vncserver_proxyclient_address=127.0.0.1
+vncserver_listen=0.0.0.0
+
+# Misc #
+logdir=/var/log/nova
+state_path=/var/lib/nova
+lock_path=/var/lock/nova
+root_helper=sudo nova-rootwrap /etc/nova/rootwrap.conf
+verbose=true
 " > /etc/nova/nova.conf
 
 # sync db
